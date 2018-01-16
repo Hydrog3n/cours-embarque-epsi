@@ -173,7 +173,7 @@ void __exit hor_exit(void)
 	remove_proc_entry("HORbusy", NULL);
 	remove_proc_entry("HORsched", NULL);
 	remove_proc_entry("HORwait", NULL);
-	remove_proc_entry("HORsched2", NULL);
+	remove_proc_entry("HORschedto", NULL);
 }
 
 module_init(hor_init);
