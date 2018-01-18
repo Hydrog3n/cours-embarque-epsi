@@ -23,8 +23,8 @@ enum hor_files {
 	HOR_WAIT,
 	HOR_SCHEDTO
 };
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 
 int hor_fct(char *buf, char **start, off_t offset, int len, int *oef, void *p)
 {
@@ -98,24 +98,26 @@ int my_read (struct file *fp, char __user *buf, size_t size, loff_t * pos)
 	        j0 = jiffies;
         	j1 = j0 + delay;
 	        switch((long)data) {
-          	case HOR_BUSY:
-	                while (time_before(jiffies, j1)) cpu_relax();
-                	break;
-          	case HOR_SCHED:
-	                while (time_before(jiffies, j1)) schedule();
-                	break;
-          	case HOR_WAIT:
-	                wait_event_interruptible_timeout(wait, 0, delay);
-	                break;
-	        case HOR_SCHEDTO:
-	                set_current_state(TASK_INTERRUPTIBLE);
-	                schedule_timeout(delay);
-	                break;
+          		case HOR_BUSY:
+			    printk("hor_busy");
+	                    while (time_before(jiffies, j1)) cpu_relax();
+                	    break;
+          		case HOR_SCHED:
+			    printk("hor_sched");
+	                    while (time_before(jiffies, j1)) schedule();
+                	    break;
+          		case HOR_WAIT:
+			    printk("hor_wait");
+	                    wait_event_interruptible_timeout(wait, 0, delay);
+	                    break;
+	        	case HOR_SCHEDTO:
+			    printk("hor_schedto");
+	                    set_current_state(TASK_INTERRUPTIBLE);
+	                    schedule_timeout(delay);
+	                    break;
 	        }
 	        j1 = jiffies; /* valeur après attente */
-	        len = sprintf(buf, "%9li %9li %9li\n", j0, j1, j1-j0);
-
-        
+	        len = sprintf(buf, "%9li %9li %9li\n", j0, j1, j1-j0); 
 
 	} else {
 	        struct timeval tv1;
@@ -159,7 +161,7 @@ int __init hor_init(void)
 	create_proc_read_entry("HORsched2", 0, NULL, hor_fct, (void*)HOR_SCHEDTO);
 #else
 	proc_create("HORclock", 0, NULL, &proc_file);
-	proc_create_data("HORbusy", 0, NULL,&proc_file, (void*)HOR_BUSY);
+	proc_create_data("HORbusy", 0, NULL, &proc_file, (void*)HOR_BUSY);
 	proc_create_data("HORsched", 0, NULL, &proc_file, (void*)HOR_SCHED);
 	proc_create_data("HORwait", 0, NULL, &proc_file, (void*)HOR_WAIT);
  	proc_create_data("HORschedto", 0, NULL, &proc_file, (void*)HOR_SCHEDTO);
