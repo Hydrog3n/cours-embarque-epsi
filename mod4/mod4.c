@@ -140,7 +140,7 @@ int my_read (struct file *fp, char __user *buf, size_t size, loff_t * pos)
 	                (int) tv2.tv_sec, (int) tv2.tv_nsec);
 	/*        *start = buf; */
 	}
-        return(len);
+	return(len);
 
 }
 

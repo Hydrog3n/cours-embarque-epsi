@@ -6,8 +6,10 @@
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <linux/types.h>
+#include <linux/ctype.h>
 #include <linux/wait.h>
 #include <linux/uaccess.h>
+#include <linux/version.h>
 
 #define NBL 26 /* nb de lettres */
 
@@ -21,7 +23,11 @@ static char TL[NBL];
 ssize_t lettre_read (struct file *fp, char __user *buf, size_t nbc, loff_t *pos)
 {
 int minor,n;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+   minor = iminor(fp->f_dentry->d_inode);
+#else
    minor = iminor(file_inode(fp));
+#endif
    /* verification du minor */
    if (minor < 0) return -ENODEV;
    if (minor >= NBL) return -ENODEV;
@@ -32,8 +38,21 @@ int minor,n;
 
 ssize_t lettre_write (struct file *fp, const char __user *buf, size_t nbc, loff_t *pos)
 {
-int minor;
+int minor,i=0;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0)
+   minor = iminor(fp->f_dentry->d_inode);
+#else
    minor = iminor(file_inode(fp));
+#endif
+   /* verification du minor */
+   if (minor < 0) return -ENODEV;
+   if (minor >= NBL) return -ENODEV;
+   /* on cherche le 1er caractere qui correspond a une majuscule */
+   while (i < nbc) {
+         if (isupper(buf[i])) break;
+         i++;
+   }
+   if (i<nbc) __copy_from_user((void*)(TL+minor),(void __user *)(buf+i),1);
    return nbc; /* retourne le nb de car ecrits */
 }
 
@@ -61,3 +80,10 @@ void lettre_exit(void)
 
 module_init(lettre_init);
 module_exit(lettre_exit);
+
+
+
+
+
+
+
