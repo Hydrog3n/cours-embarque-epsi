@@ -9,7 +9,7 @@
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 
-MODULE_AUTHOR("P. Foubet");
+MODULE_AUTHOR("L. Vaillé");
 MODULE_LICENSE("Dual BSD/GPL");
 
 /* Les fonctions sequentielles */
